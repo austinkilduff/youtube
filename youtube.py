@@ -14,24 +14,25 @@ page_text = r.text
 # Probably too much text for regex to handle efficiently
 results_json_str = page_text.split('var ytInitialData = ')[1].split('</script>')[0]
 results_json_dict = json.loads(results_json_str[:-1])
-results_list = []
+video_renderers = []
 item_section_renderer_contents = results_json_dict['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
 
-for isr_content in item_section_renderer_contents:
-    # shelfRenderers contain a list of videos that can be concatenated to results_list
-    if 'shelfRenderer' in isr_content:
-        results_list += isr_content['shelfRenderer']['content']['verticalListRenderer']['items']
-    # videoRenderers are what we're looking for, so those can be appended individually
-    elif 'videoRenderer' in isr_content:
-        results_list.append(isr_content)
+for renderers in item_section_renderer_contents:
+    # shelfRenderers contain a list of videoRenderers that can be appended to results_list
+    if 'shelfRenderer' in renderers:
+        for item in renderers['shelfRenderer']['content']['verticalListRenderer']['items']:
+            video_renderers.append(item['videoRenderer'])
+    # videoRenderers also exist at this level, so they too can be appended
+    elif 'videoRenderer' in renderers:
+        video_renderers.append(renderers['videoRenderer'])
 
-for result in results_list:
+for video_renderer in video_renderers:
     video = {
-        'video_title': result['videoRenderer']['title']['runs'][0]['text'],
-        'video_url': 'https://www.youtube.com/watch?v=' + result['videoRenderer']['videoId'],
-        'video_author': result['videoRenderer']['ownerText']['runs'][0]['text'],
-        'video_date': result['videoRenderer']['publishedTimeText']['simpleText'],
-        'video_length': result['videoRenderer']['lengthText']['simpleText'],
-        'video_view_count': result['videoRenderer']['viewCountText']['simpleText']
+        'title': video_renderer['title']['runs'][0]['text'],
+        'url': 'https://www.youtube.com/watch?v=' + video_renderer['videoId'],
+        'author': video_renderer['ownerText']['runs'][0]['text'],
+        'date': video_renderer['publishedTimeText']['simpleText'],
+        'length': video_renderer['lengthText']['simpleText'],
+        'view_count': video_renderer['viewCountText']['simpleText']
         }
-    print(video)
+    print(video['title'], '|', video['author'], '|', video['length'], '|', video['view_count'], '|', video['date'], '|', video['url'])

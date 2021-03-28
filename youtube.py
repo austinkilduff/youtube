@@ -14,7 +14,16 @@ page_text = r.text
 # Probably too much text for regex to handle efficiently
 results_json_str = page_text.split('var ytInitialData = ')[1].split('</script>')[0]
 results_json_dict = json.loads(results_json_str[:-1])
-results_list = results_json_dict['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][1]['shelfRenderer']['content']['verticalListRenderer']['items']
+results_list = []
+item_section_renderer_contents = results_json_dict['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
+
+for isr_content in item_section_renderer_contents:
+    # shelfRenderers contain a list of videos that can be concatenated to results_list
+    if 'shelfRenderer' in isr_content:
+        results_list += isr_content['shelfRenderer']['content']['verticalListRenderer']['items']
+    # videoRenderers are what we're looking for, so those can be appended individually
+    elif 'videoRenderer' in isr_content:
+        results_list.append(isr_content)
 
 for result in results_list:
     video = {

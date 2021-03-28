@@ -8,23 +8,26 @@ import sys
 src = sys.argv[1]
 dst = sys.argv[2]
 
+# src_files is the list of paths, relative to src, for all files
+# Keeping them relative makes comparing src and dst contents easier
 src_root = None
 src_files = []
 for root, directories, files in os.walk(src):
     if not src_root:
         src_root = root + '/'
-    for name in files:
-        rel_path = os.path.join(root, name)[len(src_root):]
-        src_files.append(rel_path)
+    for filename_abs in files:
+        filename_rel = os.path.join(root, filename_abs)[len(src_root):]
+        src_files.append(filename_rel)
 
+# Ditto for dst_files
 dst_root = None
 dst_files = []
 for root, directories, files in os.walk(dst):
     if not dst_root:
         dst_root = root + '/'
-    for name in files:
-        rel_path = os.path.join(root, name)[len(dst_root):]
-        dst_files.append(rel_path)
+    for filename_abs in files:
+        filename_rel = os.path.join(root, filename_abs)[len(dst_root):]
+        dst_files.append(filename_rel)
 
 src_set = set(src_files)
 dst_set = set(dst_files)
@@ -37,3 +40,14 @@ print(src_set - dst_set)
 
 print('To be deleted from dst', dst_root)
 print(dst_set - src_set)
+
+
+
+# Copy files from src to dst, creating directories where needed
+# Here (and below) it makes more sense to use absolute paths
+for filename_rel in src_set - dst_set:
+    filename_abs = src_root + filename_rel
+
+# Delete files from dst, and purge empty directories
+for filename_rel in dst_set - src_set:
+    filename_abs = dst_root + filename_rel

@@ -1,12 +1,24 @@
-# Prompts for a search term then displays the top results from YouTube
-# Work in progress, I'd like to have this be ncurses-like, and tie in with linkhandler:
-# https://github.com/LukeSmithxyz/voidrice/blob/master/.local/bin/linkhandler
-# TODO: https://docs.python.org/3/howto/curses.html
+# Prompts for a search term then displays the top results from YouTube with followable links
+# Work in progress, I'm still cleaning up the curses interface
+# Keybindings:
+#   - INSERT mode:
+#     - ESC: enter NORMAL mode
+#     - ENTER: search for search term
+#   - NORMAL mode:
+#     - i: enter INSERT mode
+#     - q: quit program
+#     - j: move cursor down
+#     - k: move cursor up
+#     - y: open link in youtube-dl
+#     - m: open link in mpv
+#     - o: open link in default web browser
+#     - l: open link in linkhandler
 
 import requests
 import json
 import curses
 import os
+import subprocess
 
 # TODO: these aren't helping ESCAPE delay
 os.environ['ESCDELAY'] = '25'
@@ -56,21 +68,20 @@ def main(stdscr):
     search_term_length = 0
     running = True
     videos = []
-    test = ''
+
     while running:
         stdscr.clear()
         height, width = stdscr.getmaxyx()
 
         if k in (curses.KEY_ENTER, 10, 13):
             if cursor_y == 0:
-                # search_term = stdscr.getstr(0, 0, len(search_term)-1)
                 videos = searchVideos(search_term)
-                test = 'enter'
                 insert_mode = False
         if insert_mode:
             cursor_y = 0
             if k == 27: # switch to normal mode if esc is pressed
                 insert_mode = False
+                cursor_y = 1
             elif k == curses.KEY_BACKSPACE and len(search_term) > 0: # delete the last character
                 search_term = search_term[:-1]
                 search_cursor_x -= 1
@@ -79,7 +90,19 @@ def main(stdscr):
                 search_cursor_x += 1
             cursor_x = search_cursor_x
         else: # normal mode
-            cursor_x = 0
+            cursor_x = 0 if cursor_y > 0 else search_cursor_x
+            if cursor_y > 0:
+                url = videos[cursor_y-1]['url']
+                if k == ord('y') and cursor_y > 0: # open with youtube-dl
+                    subprocess.call(['youtube-dl', url])
+                elif k == ord('m') and cursor_y > 0: # open with mpv
+                    subprocess.call(['mpv', url])
+                elif k == ord('o') and cursor_y > 0: # open with $BROWSER
+                    browser = os.getenv('BROWSER')
+                    subprocess.call([browser, url])
+                elif k == ord('l') and cursor_y > 0: # open with linkhandler
+                    subprocess.call(['linkhandler', url])
+
             if k == ord('i'): # switch to insert mode
                 insert_mode = True
             elif k == ord('j'): # cursor down
@@ -91,11 +114,10 @@ def main(stdscr):
             elif k == ord('q'): # quit
                 running = False
 
-        # TODO: if videos is not empty, print contents
         for i, video in enumerate(videos):
             if i < height - 2:
                 video_str = video['title'] + ' | ' + video['author'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
-                stdscr.addstr(i+1, 0, video_str[:width])
+                stdscr.addstr(i+1, 0, video_str[:width-1])
 
         status_text = 'INSERT' if insert_mode else 'NORMAL'
 

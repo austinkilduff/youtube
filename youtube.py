@@ -30,6 +30,7 @@ def searchVideos(search_term):
         elif 'videoRenderer' in renderers:
             video_renderers.append(renderers['videoRenderer'])
 
+    videos = []
     for video_renderer in video_renderers:
         video = {
             'title': video_renderer['title']['runs'][0]['text'],
@@ -39,12 +40,14 @@ def searchVideos(search_term):
             'length': video_renderer['lengthText']['simpleText'],
             'view_count': video_renderer['viewCountText']['simpleText']
         }
-        return video
+        videos.append(video)
+    return videos
 
 def main(stdscr):
     k = 0
     cursor_y = 0
     cursor_x = 0
+    search_cursor_x = 0
     curses.cbreak()
     stdscr.keypad(True)
 
@@ -53,24 +56,30 @@ def main(stdscr):
     search_term_length = 0
     running = True
     videos = []
-
+    test = ''
     while running:
         stdscr.clear()
         height, width = stdscr.getmaxyx()
 
-        if k == curses.KEY_ENTER and cursor_y == 0:
-            search_term = stdscr.getstr(0, 0, len(search_term)-1)
-            videos = searchVideos(search_term)
+        if k in (curses.KEY_ENTER, 10, 13):
+            if cursor_y == 0:
+                # search_term = stdscr.getstr(0, 0, len(search_term)-1)
+                videos = searchVideos(search_term)
+                test = 'enter'
+                insert_mode = False
         if insert_mode:
+            cursor_y = 0
             if k == 27: # switch to normal mode if esc is pressed
                 insert_mode = False
             elif k == curses.KEY_BACKSPACE and len(search_term) > 0: # delete the last character
                 search_term = search_term[:-1]
-                cursor_x -= 1
+                search_cursor_x -= 1
             elif k >= 32 and k <= 126: # accept any typeable character
                 search_term += chr(k)
-                cursor_x += 1
+                search_cursor_x += 1
+            cursor_x = search_cursor_x
         else: # normal mode
+            cursor_x = 0
             if k == ord('i'): # switch to insert mode
                 insert_mode = True
             elif k == ord('j'): # cursor down
@@ -83,8 +92,10 @@ def main(stdscr):
                 running = False
 
         # TODO: if videos is not empty, print contents
-        for video in videos:
-            video_str = video['title'] + '|' + video['author'] + '|' + video['length'] + '|' + video['view_count'] + '|' + video['date'] + '|' + video['url']
+        for i, video in enumerate(videos):
+            if i < height - 2:
+                video_str = video['title'] + ' | ' + video['author'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
+                stdscr.addstr(i+1, 0, video_str[:width])
 
         status_text = 'INSERT' if insert_mode else 'NORMAL'
 

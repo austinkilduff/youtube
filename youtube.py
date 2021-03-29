@@ -113,21 +113,25 @@ def main(stdscr):
                 insert_mode = True
             elif k == ord('j'): # cursor down
                 cursor_y += 1
-                cursor_y = min(len(videos), cursor_y)
+                cursor_y = min(min(len(videos), height - 2), cursor_y)
             elif k == ord('k'): # cursor up
                 cursor_y -= 1
                 cursor_y = max(0, cursor_y)
+                if cursor_y == 0:
+                    insert_mode = True
             elif k == ord('q'): # quit
                 running = False
 
         for i, video in enumerate(videos):
             if i < height - 2:
                 video_str = video['title'] + ' | ' + video['author'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
+                video_str = video_str[:width-1]
                 if cursor_y - 1 == i:
                     stdscr.attron(curses.color_pair(2))
                 else:
                     stdscr.attron(curses.color_pair(3))
-                stdscr.addstr(i+1, 0, video_str[:width-1])
+                stdscr.addstr(i+1, 0, video_str)
+                stdscr.addstr(i+1, len(video_str), " " * (width - len(video_str) - 1))
                 if cursor_y - 1 == i:
                     stdscr.attroff(curses.color_pair(2))
                 else:

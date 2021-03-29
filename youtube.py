@@ -84,6 +84,7 @@ def main(stdscr):
             if cursor_y == 0:
                 videos = searchVideos(search_term)
                 insert_mode = False
+                cursor_y = 1
         if insert_mode:
             cursor_y = 0
             if k == 27: # switch to normal mode if esc is pressed

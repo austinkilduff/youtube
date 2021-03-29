@@ -126,7 +126,7 @@ def main(stdscr):
         for i, video in enumerate(videos):
             if i < height - 2:
                 video_str = video['title'] + ' | ' + video['author'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
-                video_str = video_str[:width-1]
+                video_str = video_str[:width-2]
                 if cursor_y - 1 == i:
                     stdscr.attron(curses.color_pair(2))
                 else:

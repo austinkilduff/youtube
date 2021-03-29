@@ -96,24 +96,24 @@ def main(stdscr):
                 search_term += chr(k)
                 cursor_x += 1
         else: # normal mode
-            if cursor_y > 0:
+            if cursor_y > 0 and len(videos) > 0:
                 url = videos[cursor_y-1]['url']
                 FNULL = open(os.devnull, 'w')
-                if k == ord('y') and cursor_y > 0: # open with youtube-dl
+                if k == ord('y'): # open with youtube-dl
                     subprocess.call(['youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)
-                elif k == ord('m') and cursor_y > 0: # open with mpv
+                elif k == ord('m'): # open with mpv
                     subprocess.call(['mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
-                elif k == ord('o') and cursor_y > 0: # open with $BROWSER
+                elif k == ord('o'): # open with $BROWSER
                     browser = os.getenv('BROWSER')
                     subprocess.call([browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
-                elif k == ord('l') and cursor_y > 0: # open with linkhandler
+                elif k == ord('l'): # open with linkhandler
                     subprocess.call(['linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)
 
             if k == ord('i'): # switch to insert mode
                 insert_mode = True
             elif k == ord('j'): # cursor down
                 cursor_y += 1
-                cursor_y = min(height-1, cursor_y)
+                cursor_y = min(len(videos), cursor_y)
             elif k == ord('k'): # cursor up
                 cursor_y -= 1
                 cursor_y = max(0, cursor_y)

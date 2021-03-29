@@ -49,10 +49,11 @@ def searchVideos(search_term):
             'url': 'https://www.youtube.com/watch?v=' + video_renderer['videoId'],
             'author': video_renderer['ownerText']['runs'][0]['text'],
             'date': video_renderer['publishedTimeText']['simpleText'] if 'publishedTimeText' in video_renderer else '',
-            'length': video_renderer['lengthText']['simpleText'],
-            'view_count': video_renderer['viewCountText']['simpleText']
+            'length': video_renderer['lengthText']['simpleText'] if 'lengthText' in video_renderer else '',
+            'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else ''
         }
-        videos.append(video)
+        if video not in videos:
+            videos.append(video)
     return videos
 
 def main(stdscr):

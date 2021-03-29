@@ -63,6 +63,12 @@ def main(stdscr):
     curses.cbreak()
     stdscr.keypad(True)
 
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE) # search bar
+    curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK) # results
+    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_CYAN) # insert mode
+    curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_GREEN) # normal mode
+
     insert_mode = True
     search_term = ''
     search_term_length = 0
@@ -93,15 +99,16 @@ def main(stdscr):
             cursor_x = 0 if cursor_y > 0 else search_cursor_x
             if cursor_y > 0:
                 url = videos[cursor_y-1]['url']
+                FNULL = open(os.devnull, 'w')
                 if k == ord('y') and cursor_y > 0: # open with youtube-dl
-                    subprocess.call(['youtube-dl', url])
+                    subprocess.call(['youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('m') and cursor_y > 0: # open with mpv
-                    subprocess.call(['mpv', url])
+                    subprocess.call(['mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('o') and cursor_y > 0: # open with $BROWSER
                     browser = os.getenv('BROWSER')
-                    subprocess.call([browser, url])
+                    subprocess.call([browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('l') and cursor_y > 0: # open with linkhandler
-                    subprocess.call(['linkhandler', url])
+                    subprocess.call(['linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)
 
             if k == ord('i'): # switch to insert mode
                 insert_mode = True
@@ -117,12 +124,28 @@ def main(stdscr):
         for i, video in enumerate(videos):
             if i < height - 2:
                 video_str = video['title'] + ' | ' + video['author'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
+                stdscr.attron(curses.color_pair(2))
                 stdscr.addstr(i+1, 0, video_str[:width-1])
+                stdscr.attroff(curses.color_pair(2))
 
         status_text = 'INSERT' if insert_mode else 'NORMAL'
 
+        stdscr.attron(curses.color_pair(1))
         stdscr.addstr(0, 0, search_term)
+        stdscr.addstr(0, len(search_term), " " * (width - len(search_term) - 1))
+        stdscr.attroff(curses.color_pair(1))
+
+        if insert_mode:
+            stdscr.attron(curses.color_pair(3))
+        else:
+            stdscr.attron(curses.color_pair(4))
         stdscr.addstr(height-1, 0, status_text)
+        stdscr.addstr(height-1, len(status_text), " " * (width - len(status_text) - 1))
+        if insert_mode:
+            stdscr.attroff(curses.color_pair(3))
+        else:
+            stdscr.attroff(curses.color_pair(4))
+
         stdscr.move(cursor_y, cursor_x)
         stdscr.refresh()
         k = stdscr.getch()

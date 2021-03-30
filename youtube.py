@@ -21,9 +21,7 @@ import curses
 import os
 import subprocess
 
-# TODO: these aren't helping ESCAPE delay
 os.environ['ESCDELAY'] = '25'
-os.environ.setdefault('ESCDELAY', '25')
 
 def searchVideos(search_term):
     r = requests.get('https://www.youtube.com/results?search_query=' + search_term.replace(' ', '+'))
@@ -79,10 +77,9 @@ def main(stdscr):
     insert_mode = True
     search_term = ''
     search_term_length = 0
-    running = True
     videos = []
 
-    while running:
+    while True:
         stdscr.clear()
         height, width = stdscr.getmaxyx()
 
@@ -140,7 +137,7 @@ def main(stdscr):
                 if cursor_y == 0:
                     insert_mode = True
             elif k == ord('q'): # quit
-                running = False
+                break
 
         for i, video in enumerate(videos):
             if i < height - 2:

@@ -45,17 +45,20 @@ def searchVideos(search_term):
 
     videos = []
     for video_renderer in video_renderers:
-        video = {
-            'title': video_renderer['title']['runs'][0]['text'],
-            'url': 'https://www.youtube.com/watch?v=' + video_renderer['videoId'],
-            'channel': video_renderer['ownerText']['runs'][0]['text'],
-            'date': video_renderer['publishedTimeText']['simpleText'] if 'publishedTimeText' in video_renderer else '',
-            'length': video_renderer['lengthText']['simpleText'] if 'lengthText' in video_renderer else '',
-            'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else '',
-            'channel_url': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']
-        }
-        if video not in videos:
-            videos.append(video)
+        try:
+            video = {
+                'title': video_renderer['title']['runs'][0]['text'],
+                'url': 'https://www.youtube.com/watch?v=' + video_renderer['videoId'],
+                'channel': video_renderer['ownerText']['runs'][0]['text'],
+                'date': video_renderer['publishedTimeText']['simpleText'] if 'publishedTimeText' in video_renderer else '',
+                'length': video_renderer['lengthText']['simpleText'] if 'lengthText' in video_renderer else '',
+                'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else '',
+                'channel_url': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']
+            }
+            if video not in videos:
+                videos.append(video)
+        except:
+            pass
     return videos
 
 def main(stdscr):
@@ -106,7 +109,7 @@ def main(stdscr):
                 if channel_url.startswith('/user/'):
                     rss_url = 'https://www.youtube.com/feeds/videos.xml?user=' + channel_url.replace('/user/', '')
                 else:
-                    rss_url = 'https://www.youtube.com/feeds/videos.xml?channel=' + channel_url.replace('/channel/', '')
+                    rss_url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel_url.replace('/channel/', '') + '\n'
                 FNULL = open(os.devnull, 'w')
                 if k == ord('y'): # open with youtube-dl
                     subprocess.call(['youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)
@@ -119,8 +122,12 @@ def main(stdscr):
                     subprocess.call(['linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('c'): # add channel to newsboat subscriptions
                     urls_filename = os.getenv('HOME') + '/.config/newsboat/urls'
-                    with open(urls_filename, "a") as urls_file:
-                        urls_file.write(rss_url)
+                    urls_file_contents = ''
+                    with open(urls_filename, 'r') as urls_file:
+                        urls_file_contents = urls_file.read()
+                    if rss_url not in urls_file_contents:
+                        with open(urls_filename, 'a') as urls_file:
+                            urls_file.write(rss_url)
 
             if k == ord('i'): # switch to insert mode
                 insert_mode = True

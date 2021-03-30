@@ -13,6 +13,7 @@
 #     - m: open link in mpv
 #     - o: open link in default web browser
 #     - l: open link in linkhandler
+#     - c: add channel to newsboat subscriptions
 
 import requests
 import json
@@ -47,10 +48,11 @@ def searchVideos(search_term):
         video = {
             'title': video_renderer['title']['runs'][0]['text'],
             'url': 'https://www.youtube.com/watch?v=' + video_renderer['videoId'],
-            'author': video_renderer['ownerText']['runs'][0]['text'],
+            'channel': video_renderer['ownerText']['runs'][0]['text'],
             'date': video_renderer['publishedTimeText']['simpleText'] if 'publishedTimeText' in video_renderer else '',
             'length': video_renderer['lengthText']['simpleText'] if 'lengthText' in video_renderer else '',
-            'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else ''
+            'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else '',
+            'channel_url': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']
         }
         if video not in videos:
             videos.append(video)
@@ -100,6 +102,11 @@ def main(stdscr):
         else: # normal mode
             if cursor_y > 0 and len(videos) > 0:
                 url = videos[cursor_y-1]['url']
+                channel_url = videos[cursor_y-1]['channel_url']
+                if channel_url.startswith('/user/'):
+                    rss_url = 'https://www.youtube.com/feeds/videos.xml?user=' + channel_url.replace('/user/', '')
+                else:
+                    rss_url = 'https://www.youtube.com/feeds/videos.xml?channel=' + channel_url.replace('/channel/', '')
                 FNULL = open(os.devnull, 'w')
                 if k == ord('y'): # open with youtube-dl
                     subprocess.call(['youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)
@@ -110,6 +117,10 @@ def main(stdscr):
                     subprocess.call([browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('l'): # open with linkhandler
                     subprocess.call(['linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)
+                elif k == ord('c'): # add channel to newsboat subscriptions
+                    urls_filename = os.getenv('HOME') + '/.config/newsboat/urls'
+                    with open(urls_filename, "a") as urls_file:
+                        urls_file.write(rss_url)
 
             if k == ord('i'): # switch to insert mode
                 insert_mode = True
@@ -126,7 +137,7 @@ def main(stdscr):
 
         for i, video in enumerate(videos):
             if i < height - 2:
-                video_str = video['title'] + ' | ' + video['author'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
+                video_str = video['title'] + ' | ' + video['channel'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
                 video_str = video_str[:width-2]
                 if cursor_y - 1 == i:
                     stdscr.attron(curses.color_pair(2))

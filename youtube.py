@@ -30,33 +30,35 @@ def searchVideos(search_term):
     results_json_str = page_text.split('var ytInitialData = ')[1].split('</script>')[0]
     results_json_dict = json.loads(results_json_str[:-1])
     video_renderers = []
-    item_section_renderer_contents = results_json_dict['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']
-
-    for renderers in item_section_renderer_contents:
-        # shelfRenderers contain a list of videoRenderers that can be appended to results_list
-        if 'shelfRenderer' in renderers:
-            for item in renderers['shelfRenderer']['content']['verticalListRenderer']['items']:
-                video_renderers.append(item['videoRenderer'])
-        # videoRenderers also exist at this level, so they too can be appended
-        elif 'videoRenderer' in renderers:
-            video_renderers.append(renderers['videoRenderer'])
-
     videos = []
-    for video_renderer in video_renderers:
-        try:
-            video = {
-                'title': video_renderer['title']['runs'][0]['text'],
-                'url': 'https://www.youtube.com/watch?v=' + video_renderer['videoId'],
-                'channel': video_renderer['ownerText']['runs'][0]['text'],
-                'date': video_renderer['publishedTimeText']['simpleText'] if 'publishedTimeText' in video_renderer else '',
-                'length': video_renderer['lengthText']['simpleText'] if 'lengthText' in video_renderer else '',
-                'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else '',
-                'channel_url': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']
-            }
-            if video not in videos:
-                videos.append(video)
-        except:
-            pass
+    section_list_renderer_contents = results_json_dict['contents']['twoColumnSearchResultsRenderer']['primaryContents']['sectionListRenderer']['contents']
+    for section_list_renderer in section_list_renderer_contents:
+        if 'itemSectionRenderer' in section_list_renderer:
+            item_section_renderer_contents = section_list_renderer['itemSectionRenderer']['contents']
+            for renderers in item_section_renderer_contents:
+                # shelfRenderers contain a list of videoRenderers that can be appended to results_list
+                if 'shelfRenderer' in renderers:
+                    for item in renderers['shelfRenderer']['content']['verticalListRenderer']['items']:
+                        video_renderers.append(item['videoRenderer'])
+                # videoRenderers also exist at this level, so they too can be appended
+                elif 'videoRenderer' in renderers:
+                    video_renderers.append(renderers['videoRenderer'])
+
+            for video_renderer in video_renderers:
+                try:
+                    video = {
+                        'title': video_renderer['title']['runs'][0]['text'],
+                        'url': 'https://www.youtube.com/watch?v=' + video_renderer['videoId'],
+                        'channel': video_renderer['ownerText']['runs'][0]['text'],
+                        'date': video_renderer['publishedTimeText']['simpleText'] if 'publishedTimeText' in video_renderer else '',
+                        'length': video_renderer['lengthText']['simpleText'] if 'lengthText' in video_renderer else '',
+                        'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else '',
+                        'channel_url': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']
+                    }
+                    if video not in videos:
+                        videos.append(video)
+                except:
+                    pass
     return videos
 
 def main(stdscr):

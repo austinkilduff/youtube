@@ -55,7 +55,7 @@ def searchVideos(search_term):
                         'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else '',
                         'channel_url': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']
                     }
-                    if video not in videos:
+                    if video['url'] not in [v['url'] for v in videos]:
                         videos.append(video)
                 except:
                     pass

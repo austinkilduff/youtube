@@ -1,2 +1,0 @@
-# Given a video file as an argument, convert it to an mp3 file. Great for podcasts.
-ffmpeg -i "$1" -q:a 0 -map a "$1".mp3

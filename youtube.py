@@ -1,5 +1,4 @@
 # Prompts for a search term then displays the top results from YouTube with followable links
-# Work in progress, I'm still cleaning up the curses interface
 # Keybindings:
 #   - INSERT mode:
 #     - ESC: enter NORMAL mode
@@ -91,7 +90,6 @@ def main(stdscr):
                 insert_mode = False
                 cursor_y = 1
         if insert_mode:
-            cursor_y = 0
             if k == 27: # switch to normal mode if esc is pressed
                 insert_mode = False
                 cursor_y = 1
@@ -129,6 +127,7 @@ def main(stdscr):
                             urls_file.write(rss_url)
 
             if k == ord('i'): # switch to insert mode
+                cursor_y = 0
                 insert_mode = True
             elif k == ord('j'): # cursor down
                 cursor_y += 1

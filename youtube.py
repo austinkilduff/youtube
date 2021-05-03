@@ -36,7 +36,7 @@ def searchVideos(search_term):
             item_section_renderer_contents = section_list_renderer['itemSectionRenderer']['contents']
             for renderers in item_section_renderer_contents:
                 # shelfRenderers contain a list of videoRenderers that can be appended to results_list
-                if 'shelfRenderer' in renderers:
+                if 'shelfRenderer' in renderers and 'verticalListRenderer' in renderers['shelfRenderer']['content']:
                     for item in renderers['shelfRenderer']['content']['verticalListRenderer']['items']:
                         video_renderers.append(item['videoRenderer'])
                 # videoRenderers also exist at this level, so they too can be appended

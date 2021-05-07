@@ -124,7 +124,7 @@ def main(stdscr):
                         urls_file_contents = urls_file.read()
                     if rss_url not in urls_file_contents:
                         with open(urls_filename, 'a') as urls_file:
-                            urls_file.write(rss_url)
+                            urls_file.write(rss_url + '\n')
 
             if k == ord('i'): # switch to insert mode
                 cursor_y = 0

@@ -86,7 +86,10 @@ def main(stdscr):
 
         if k in (curses.KEY_ENTER, 10, 13):
             if cursor_y == 0:
-                videos = searchVideos(search_term)
+                try:
+                    videos = searchVideos(search_term)
+                except:
+                    pass
                 insert_mode = False
                 cursor_y = 1
         if insert_mode:

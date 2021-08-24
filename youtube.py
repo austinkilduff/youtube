@@ -12,7 +12,8 @@
 #     - m: open link in mpv
 #     - o: open link in default web browser
 #     - l: open link in linkhandler
-#     - c: add channel to newsboat subscriptions
+#     - n: add channel to newsboat subscriptions
+#     - c: copy video url to clipboard
 
 import requests
 import json
@@ -120,7 +121,7 @@ def main(stdscr):
                     subprocess.call([browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('l'): # open with linkhandler
                     subprocess.call(['linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)
-                elif k == ord('c'): # add channel to newsboat subscriptions
+                elif k == ord('n'): # add channel to newsboat subscriptions
                     urls_filename = os.getenv('HOME') + '/.config/newsboat/urls'
                     urls_file_contents = ''
                     with open(urls_filename, 'r') as urls_file:
@@ -128,6 +129,8 @@ def main(stdscr):
                     if rss_url not in urls_file_contents:
                         with open(urls_filename, 'a') as urls_file:
                             urls_file.write(rss_url + '\n')
+                elif k == ord('c'): # copy video url to clipboard
+                    subprocess.call(['copytext', url], stdout=FNULL, stderr=subprocess.STDOUT)
 
             if k == ord('i'): # switch to insert mode
                 cursor_y = 0

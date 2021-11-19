@@ -113,14 +113,14 @@ def main(stdscr):
                     rss_url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel_url.replace('/channel/', '') + '\n'
                 FNULL = open(os.devnull, 'w')
                 if k == ord('y'): # open with youtube-dl
-                    subprocess.call(['youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)
+                    subprocess.call(['setsid', '-f', 'youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('m'): # open with mpv
-                    subprocess.call(['mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
+                    subprocess.call(['setsid', '-f', 'mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('o'): # open with $BROWSER
                     browser = os.getenv('BROWSER')
-                    subprocess.call([browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
+                    subprocess.call(['setsid', '-f', browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('l'): # open with linkhandler
-                    subprocess.call(['linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)
+                    subprocess.call(['setsid', '-f', 'linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('n'): # add channel to newsboat subscriptions
                     urls_filename = os.getenv('HOME') + '/.config/newsboat/urls'
                     urls_file_contents = ''
@@ -130,7 +130,7 @@ def main(stdscr):
                         with open(urls_filename, 'a') as urls_file:
                             urls_file.write(rss_url + '\n')
                 elif k == ord('c'): # copy video url to clipboard
-                    subprocess.call(['copytext', url], stdout=FNULL, stderr=subprocess.STDOUT)
+                    subprocess.call(['setsid', '-f', 'copytext', url], stdout=FNULL, stderr=subprocess.STDOUT)
 
             if k == ord('i'): # switch to insert mode
                 cursor_y = 0

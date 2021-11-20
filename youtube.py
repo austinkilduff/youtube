@@ -68,11 +68,12 @@ def main(stdscr):
     curses.cbreak()
     stdscr.keypad(True)
     curses.curs_set(False)
+    curses.use_default_colors()
 
     curses.start_color()
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE) # search bar
     curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_YELLOW) # selected result
-    curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK) # results
+    curses.init_pair(3, curses.COLOR_YELLOW, -1) # results
     curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_CYAN) # insert mode
     curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_GREEN) # normal mode
 

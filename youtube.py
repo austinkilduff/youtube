@@ -61,6 +61,11 @@ def searchVideos(search_term):
                     pass
     return videos
 
+def draw_string(stdscr, color_pair, row, column, content):
+    stdscr.attron(curses.color_pair(color_pair))
+    stdscr.addstr(row, column, content)
+    stdscr.attroff(curses.color_pair(color_pair))
+
 def main(stdscr):
     k = 0
     cursor_y = 0
@@ -149,43 +154,20 @@ def main(stdscr):
 
         for i, video in enumerate(videos):
             if i < height - 2:
+                video_str_color_pair = 2 if cursor_y - 1 == i else 3
                 video_str = video['title'] + ' | ' + video['channel'] + ' | ' + video['length'] + ' | ' + video['view_count'] + ' | ' + video['date']
                 video_str = video_str[:width-2]
-                if cursor_y - 1 == i:
-                    stdscr.attron(curses.color_pair(2))
-                else:
-                    stdscr.attron(curses.color_pair(3))
-                stdscr.addstr(i+1, 0, video_str)
-                stdscr.addstr(i+1, len(video_str), " " * (width - len(video_str) - 1))
-                if cursor_y - 1 == i:
-                    stdscr.attroff(curses.color_pair(2))
-                else:
-                    stdscr.attroff(curses.color_pair(3))
+                draw_string(stdscr, video_str_color_pair, i+1, 0, video_str)
+                draw_string(stdscr, video_str_color_pair, i+1, len(video_str), " " * (width - len(video_str) - 1))
 
+        draw_string(stdscr, 1, 0, 0, search_term)
+        draw_string(stdscr, 3, 0, len(search_term), " ")
+        draw_string(stdscr, 1, 0, len(search_term) + 1, " " * (width - len(search_term) - 2))
+
+        mode_color_pair = 4 if insert_mode else 5
         status_text = 'INSERT' if insert_mode else 'NORMAL'
-
-        stdscr.attron(curses.color_pair(1))
-        stdscr.addstr(0, 0, search_term)
-        stdscr.attroff(curses.color_pair(1))
-
-        stdscr.attron(curses.color_pair(3))
-        stdscr.addstr(0, len(search_term), " ")
-        stdscr.attroff(curses.color_pair(3))
-
-        stdscr.attron(curses.color_pair(1))
-        stdscr.addstr(0, len(search_term) + 1, " " * (width - len(search_term) - 2))
-        stdscr.attroff(curses.color_pair(1))
-
-        if insert_mode:
-            stdscr.attron(curses.color_pair(4))
-        else:
-            stdscr.attron(curses.color_pair(5))
-        stdscr.addstr(height-1, 0, status_text)
-        stdscr.addstr(height-1, len(status_text), " " * (width - len(status_text) - 1))
-        if insert_mode:
-            stdscr.attroff(curses.color_pair(4))
-        else:
-            stdscr.attroff(curses.color_pair(5))
+        draw_string(stdscr, mode_color_pair, height-1, 0, status_text)
+        draw_string(stdscr, mode_color_pair, height-1, len(status_text), " " * (width - len(status_text) - 1))
 
         stdscr.move(cursor_y, cursor_x)
         stdscr.refresh()

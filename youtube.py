@@ -124,6 +124,7 @@ def main(stdscr):
                     subprocess.call(['setsid', '-f', 'mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('o'): # open with $BROWSER
                     browser = os.getenv('BROWSER')
+                    url = url.replace('youtube.com', 'yewtu.be') # Bypass age restriction, at least with browser
                     subprocess.call(['setsid', '-f', browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('l'): # open with linkhandler
                     subprocess.call(['setsid', '-f', 'linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)

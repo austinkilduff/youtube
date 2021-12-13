@@ -111,7 +111,7 @@ def main(stdscr):
                 cursor_x += 1
         else: # normal mode
             if cursor_y > 0 and len(videos) > 0:
-                url = videos[cursor_y-1]['url']
+                url = videos[cursor_y-1]['url'].replace('youtube.com', 'yewtu.be') # Bypass age restriction, at least with browser
                 channel_url = videos[cursor_y-1]['channel_url']
                 if channel_url.startswith('/user/'):
                     rss_url = 'https://www.youtube.com/feeds/videos.xml?user=' + channel_url.replace('/user/', '')
@@ -124,7 +124,6 @@ def main(stdscr):
                     subprocess.call(['setsid', '-f', 'mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('o'): # open with $BROWSER
                     browser = os.getenv('BROWSER')
-                    url = url.replace('youtube.com', 'yewtu.be') # Bypass age restriction, at least with browser
                     subprocess.call(['setsid', '-f', browser, url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('l'): # open with linkhandler
                     subprocess.call(['setsid', '-f', 'linkhandler', url], stdout=FNULL, stderr=subprocess.STDOUT)

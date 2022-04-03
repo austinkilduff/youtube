@@ -53,7 +53,7 @@ def searchVideos(search_term):
                         'date': video_renderer['publishedTimeText']['simpleText'] if 'publishedTimeText' in video_renderer else '',
                         'length': video_renderer['lengthText']['simpleText'] if 'lengthText' in video_renderer else '',
                         'view_count': video_renderer['viewCountText']['simpleText'] if 'simpleText' in video_renderer['viewCountText'] else '',
-                        'channel_url': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']
+                        'channel_id': video_renderer['channelThumbnailSupportedRenderers']['channelThumbnailWithLinkRenderer']['navigationEndpoint']['browseEndpoint']['browseId']
                     }
                     if video['url'] not in [v['url'] for v in videos]:
                         videos.append(video)
@@ -112,11 +112,8 @@ def main(stdscr):
         else: # normal mode
             if cursor_y > 0 and len(videos) > 0:
                 url = videos[cursor_y-1]['url'].replace('youtube.com', 'yewtu.be') # Bypass age restriction, at least with browser
-                channel_url = videos[cursor_y-1]['channel_url']
-                if channel_url.startswith('/user/'):
-                    rss_url = 'https://www.youtube.com/feeds/videos.xml?user=' + channel_url.replace('/user/', '')
-                else:
-                    rss_url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel_url.replace('/channel/', '') + '\n'
+                channel_id = videos[cursor_y-1]['channel_id']
+                rss_url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel_id + '\n'
                 FNULL = open(os.devnull, 'w')
                 if k == ord('y'): # open with youtube-dl
                     subprocess.call(['setsid', '-f', 'youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)

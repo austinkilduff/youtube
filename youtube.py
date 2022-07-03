@@ -91,6 +91,8 @@ def main(stdscr):
         stdscr.clear()
         height, width = stdscr.getmaxyx()
 
+        cursor_y = min(cursor_y, height - 2)
+
         if k in (curses.KEY_ENTER, 10, 13):
             if cursor_y == 0:
                 try:

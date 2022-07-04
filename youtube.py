@@ -9,6 +9,7 @@
 #     - j: move cursor down
 #     - k: move cursor up
 #     - y: open link in youtube-dl
+#     - y: open link in youtube-dl to download audio
 #     - m: open link in mpv
 #     - o: open link in default web browser
 #     - l: open link in linkhandler
@@ -119,6 +120,8 @@ def main(stdscr):
                 FNULL = open(os.devnull, 'w')
                 if k == ord('y'): # open with youtube-dl
                     subprocess.call(['setsid', '-f', 'yt-dlp', url], stdout=FNULL, stderr=subprocess.STDOUT)
+                if k == ord('a'): # open with youtube-dl to download audio
+                    subprocess.call(['setsid', '-f', 'yt-dlp', '-x', '--audio-format', 'mp3', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('m'): # open with mpv
                     subprocess.call(['setsid', '-f', 'mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('o'): # open with $BROWSER

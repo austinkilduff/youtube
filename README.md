@@ -16,6 +16,7 @@ Keybindings:
   - `j`: move cursor down
   - `k`: move cursor up
   - `y`: open link in youtube-dl
+  - `a`: open link in youtube-dl to download audio
   - `m`: open link in mpv
   - `o`: open link in default web browser
   - `l`: open link in linkhandler

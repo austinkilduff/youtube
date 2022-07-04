@@ -118,7 +118,7 @@ def main(stdscr):
                 rss_url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel_id + '\n'
                 FNULL = open(os.devnull, 'w')
                 if k == ord('y'): # open with youtube-dl
-                    subprocess.call(['setsid', '-f', 'youtube-dl', url], stdout=FNULL, stderr=subprocess.STDOUT)
+                    subprocess.call(['setsid', '-f', 'yt-dlp', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('m'): # open with mpv
                     subprocess.call(['setsid', '-f', 'mpv', url], stdout=FNULL, stderr=subprocess.STDOUT)
                 elif k == ord('o'): # open with $BROWSER

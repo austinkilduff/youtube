@@ -116,7 +116,8 @@ def main(stdscr):
             if cursor_y > 0 and len(videos) > 0:
                 url = videos[cursor_y-1]['url'].replace('youtube.com', 'yewtu.be') # Bypass age restriction, at least with browser
                 channel_id = videos[cursor_y-1]['channel_id']
-                rss_url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel_id + '\n'
+                channel = videos[cursor_y-1]['channel']
+                rss_url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + channel_id
                 FNULL = open(os.devnull, 'w')
                 if k == ord('y'): # open with youtube-dl
                     subprocess.call(['setsid', '-f', 'yt-dlp', url], stdout=FNULL, stderr=subprocess.STDOUT)
@@ -136,7 +137,7 @@ def main(stdscr):
                         urls_file_contents = urls_file.read()
                     if rss_url not in urls_file_contents:
                         with open(urls_filename, 'a') as urls_file:
-                            urls_file.write(rss_url + '\n')
+                            urls_file.write(rss_url + ' #' + channel + '\n')
                 elif k == ord('c'): # copy video url to clipboard
                     subprocess.call(['setsid', '-f', 'copytext', url], stdout=FNULL, stderr=subprocess.STDOUT)
 
